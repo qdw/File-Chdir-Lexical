@@ -1,2 +1,6 @@
 In sub new, don't return a blessed hash reference; return a blessed anonymous
 scalar instead.
+
+Put this project on github.
+
+

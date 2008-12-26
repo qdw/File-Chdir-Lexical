@@ -2,10 +2,8 @@ package File::Chdir::Lexical; {
     use strict;
     use warnings;
 
-    my $debug = 0;
-
     sub debug {
-        print @_ if $debug;
+        print @_, "\n" if $debug;
     }
 
     sub new {
