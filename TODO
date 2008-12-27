@@ -1,1 +1,5 @@
+Add warning about memory leaks (if someone is dumb enough to copy or take
+a reference, or fail to use lexical scope).  But forgetting to use a lexical
+scope is less likely than forgetting to chdir back.
+
 Put this project on github.
