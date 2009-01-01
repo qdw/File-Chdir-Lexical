@@ -2,17 +2,33 @@ package File::Chdir::Lexical; {
     use strict;
     use warnings;
 
+    use Cwd;
+
     my $debug = 0;
     sub debug {
         print @_, "\n" if $debug;
     }
 
     sub new {
-        my ($class) = @_;
-        return bless \(my $self), $class;
+        my ($class, $target_dir) = @_;
+        my $original_dir = cwd();
+        
+        chdir $target_dir
+            or die "Couldn't chdir to target directory '$target_dir': $!";
+
+        my $self = {
+            target_dir    =>  $target_dir,
+            original_dir  =>  $original_dir,
+        };
+        
+        return bless $self, $class;
     }
 
     sub DESTROY {
+        my ($self) = @_;
+        my $od = $self->{original_dir};
+        chdir $od or die "Couldn't change back to original directory '$od': $!";
+        return;
     }
 }
 
@@ -92,10 +108,15 @@ sub do_various_dirs {
     ...
 }
 
-=head1 BUGS
+=head1 BUGS?
 
-None.  But File::chdir has an easier-to-use interface, so I recommend it
-instead.
+File::chdir has an easier-to-use interface, so I recommend using it instead.
+
+File::Chdir::Lexical uses conventional Perl blessed-hashref objects,
+so a user really bent on self-sabotage could reach in and mutate
+$handle->{target_dir} or $handle->{original_dir}.  But who would want to
+do that?  Besides, the alternative was to force a dependency on
+Object::InsideOut, which is far too heavyweight for a quickie module like this.
 
 =head1 AUTHOR
 

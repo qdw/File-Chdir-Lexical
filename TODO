@@ -3,3 +3,13 @@ a reference, or fail to use lexical scope).  But forgetting to use a lexical
 scope is less likely than forgetting to chdir back.
 
 Put this project on github.
+
+Test on non-Unix architectures:  Does "use Cwd" really work?
+
+Figure out when the tests run (*before* installing, right?  In that case,
+changing to ../lib should work).
+
+Re-enable Test::Exception stanza in tests
+
+Un-reinvent the wheel--use someone else's abs_path.
+
