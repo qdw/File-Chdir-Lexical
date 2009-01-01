@@ -3,40 +3,35 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 8;
 
-use lib '../lib';
 use_ok('Cwd', 'cwd');
-use_ok('File::Chdir::Lexical');
-use_ok('FindBin');
 
-sub puts {
-    print @_, "\n";
+BEGIN {
+    use_ok('FindBin');
 }
+use lib "$FindBin::Bin/../lib";
+use_ok('File::Chdir::Lexical');
 
 sub abs_path {
     my ($path) = @_;
-    puts "abs_path input: $path";
 
     # If it doesn't start with a slash, reckon it relative to this program's
     # path.  (If it does start with a slash, it's already absolute, so we just
     # return an identical string.)
     $path .= $FindBin::Bin . "/$path" if $path !~ m{\A /}smx;
 
-    puts "abs_path output: $path";
     return $path;
 }
 
 sub canonical_path {
     my ($path) = @_;
-    puts "canonical_path input: $path";
     
     $path = abs_path $path;
 
     # Change foo/bar/../batz to foo/batz, which is equivalent.
     $path =~ s{ / ([^/])+? / [.][.] }{}gsmx;
 
-    puts "canonical_path output: $path";
     return $path;
 }
 
@@ -53,7 +48,6 @@ SKIP: {
     # Test chdir'ing to ../lib, since we know we have execute permissions there.
 
     my $original_dir = cwd();
-    puts "original directory $original_dir";
     
     { # Start a new lexical scope for the target directory.
         my $target_dir = canonical_path($FindBin::Bin . '/../lib');
