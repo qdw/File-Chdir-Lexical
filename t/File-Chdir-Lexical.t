@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Test::More tests => 8;
+use Test::Exception; # provides lives_ok
 
 use_ok('Cwd', 'cwd');
 
@@ -35,13 +36,12 @@ sub canonical_path {
     return $path;
 }
 
-SKIP: {
+{
     my $handle;
-    skip(q{because I need to install Test::Exception once I'm off this airplane}, 1);
-    use_ok('Test::Exception');
-    lives_ok {
-        $handle = File::Chdir::Lexical->new('../lib'); # since we have perms
-    }
+    lives_ok
+        # Test new on ../lib, since we know we have perms there.
+        { $handle = File::Chdir::Lexical->new('../lib'); }
+        q{File::Chdir::Lexical->new('../lib') doesn't die};
 }
 
 {
@@ -72,7 +72,7 @@ SKIP: {
     is(
         cwd(),
         $original_dir,
-        q{after popping out of the new scope, we're back in the original dir'}
+        q{after popping out of the new scope, we're back in the original dir}
     );
 }
 
