@@ -26,9 +26,18 @@ package File::Chdir::Lexical; {
 
     sub DESTROY {
         my ($self) = @_;
-        my $od = $self->{original_dir};
-        chdir $od or die "Couldn't change back to original directory '$od': $!";
+        my $original_dir = $self->{original_dir};
+        my $target_dir   = $self->{target_dir};
+        
+        if ($self->{original_dir} eq $self->{target_dir}) {
+            return;
+        }
+        else {
+            my $od = $self->{original_dir};
+            chdir $od
+                or die "Couldn't change back to original directory '$od': $!";
         return;
+        }
     }
 }
 
@@ -68,6 +77,25 @@ File::Chdir::Lexical - automatically chdir's back to previous dir
        ...
    }
 
+=head1 DIAGNOSTICS
+
+This module dies with an informative string error string if it can't chdir
+to or from your directory.  That's because your code can't safely continue
+without chdiring to the right directory.  The safest thing is to bail out.
+For more on this philosophy, see Damian Conway's Perl Best Practices,
+p. 274 (first edition).
+
+If you want to catch these exceptions at runtime and deal with them
+safely, you need to write code like this:
+
+{
+    my $handle;
+    eval { $handle = File::Chdir::Lexical->new('/var'); };
+    if ($@) {
+        # handle error...
+    }
+}
+
 =head1 DESCRIPTION
 
 This module simplifies the common task of chdir'ing to a directory, opening
@@ -82,7 +110,7 @@ chdir $new_dir or die "Couldn't chdir to $new_dir: $!. Failed";
 ...
 chdir $original_dir or die "Couldn't chdir back to $original_dir: $!.  Failed";
 
-=head2 EXPORT
+=head1 EXPORT
 
 None.  Use the OO interface:
 
@@ -108,7 +136,7 @@ sub do_various_dirs {
     ...
 }
 
-=head1 BUGS?
+=head1 BUGS AND LIMITATIONS
 
 File::chdir has an easier-to-use interface, so I recommend using it instead.
 
@@ -127,6 +155,15 @@ Quinn Weaver <quinn@fairpath.com>
 Copyright (C) 2008, Quinn Weaver.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the same terms as Perl 5 itself.  See http://dev.perl.org/licenses/
 
-See http://dev.perl.org/licenses/
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
