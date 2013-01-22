@@ -1,0 +1,25 @@
+In Perl as elsewhere, it's a common pattern to save the current working
+directory, change to another directory, do some work there, and then change
+back. The problem is that you can forget to change back. Also, it's a bit
+tedious to write the requisite code.
+
+File::Chdir was a solution to this problem that used Perl's garbage collection
+mechanism to accomplish the change back. It worked like this:
+
+{
+    my $handle = File::Chdir::Lexical->new($dir_to_change_to);
+    [do stuff...]
+    [more stuff...]
+    [done.]
+} # when the $handle exits scope, its destructor changes the directory back.
+
+It was a good approach, David Golden came up with something even more
+clever: the CPAN module File::chdir. It uses a tied global variable $CWD
+
+    {
+        local $CWD = $dir_to_change_to;
+        [do stuff...]
+    } # end scope, so we change back to the original dir
+
+This interface is easier to use, in my opinion. There's no point in having two
+CPAN modules that do the same thing, so I'm retiring mine.
